@@ -42,7 +42,7 @@ run_tests(){
 }
 
 do_action(){
-	echo -e "Gerando \e[33m$QTDE_FILES\e[0m arquivos de \e[33m$SIZE_OF_FILE\e[0m"
+	echo -e "Gerando \e[33m$QTDE_FILES\e[0m arquivos de \e[33m$SIZE_NUMBER\e[0m"
 	prepare_ambient 2> /dev/null 
 	run_tests
 	rm input/*
@@ -72,8 +72,10 @@ do
 	for j in $(seq 3)
 	do
 		QTDE_FILES=${QTDE_FILES_ARRAY[$j-1]}
+		SIZE_NUMBER=$(echo ${SIZE_OF_FILE:0:-1} | xargs -I{} echo "$SIZE*{}" | xargs -I{} python -c "print str({})+'M'")
 		#echo "Tamanho "$SIZE
 		#echo "Qtde "$QTDE_FILES
+		#echo $SIZE_NUMBER
 		do_action
 	done
 done
