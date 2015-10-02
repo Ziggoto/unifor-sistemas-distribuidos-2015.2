@@ -8,6 +8,10 @@ SIZE=1
 SIZE_OF_FILE=$(du -h files/heavy_file | awk '{print $1}')
 CPU_INFO=$(cat /proc/cpuinfo | fgrep "model name" | uniq | cut -d : -f2)
 
+TIME_SEQUENCIAL=""
+
+OUTPUT_FILE=output_times.csv
+
 prepare_ambient(){
 	cp files/heavy_file input/
 	cd input/
@@ -27,18 +31,18 @@ prepare_ambient(){
 
 run_tests(){
 	echo "Executando Compactador Sequencial"
-	(time python CompactadorSequencial.py) 2>> times.txt
+	TIME_SEQUENCIAL=$({ time python CompactadorSequencial.py; } 2>&1 | grep "real" | awk '{print $2}')
 
 	echo "Limpando arquivos .zip gerados"
 	rm output/*
 
 	echo "Executando Compactador Paralelo"
-	(time python CompactadorParalelo.py) 2>> times.txt
+	TIME_PARALELO=$({ time python CompactadorParalelo.py; } 2>&1 | grep "real" | awk '{print $2}')
 
 	echo "Limpando arquivos .zip gerados"
 	rm output/*
 
-	echo "============================" >> times.txt
+	echo $SIZE_NUMBER","$QTDE_FILES","$TIME_SEQUENCIAL","$TIME_PARALELO >> $OUTPUT_FILE
 }
 
 do_action(){
@@ -48,7 +52,10 @@ do_action(){
 	rm input/*
 }
 
-touch times.txt
+mkdir input 2> /dev/null/
+mkdir output 2> /dev/null/
+rm $OUTPUT_FILE 2> /dev/null/
+touch $OUTPUT_FILE
 
 cat <<JOB
 ###########################################
